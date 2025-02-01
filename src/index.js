@@ -9,7 +9,7 @@ import {app} from './app.js'
 //connectDB is a promise and it means we can write .then and .catch
 connectDB().
 then(()=>{
-    app.listen(process.env.PORT || 8000,()=>{
+    app.listen(process.env.PORT || 8001,()=>{
         console.log("Server listening on port " + process.env.PORT); 
     })
 }).
