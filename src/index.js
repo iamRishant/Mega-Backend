@@ -2,6 +2,8 @@
 import dotenv from 'dotenv'
 dotenv.config()
 import connectDB from "./db/db.js";
+import {app} from './app.js'
+// const app=require('./app.js')
 
 
 //connectDB is a promise and it means we can write .then and .catch
