@@ -33,7 +33,7 @@ const userSchema= mongoose.Schema({
     },
     watchHistory:[
         {
-            type:mongoose.Scheme.Types.ObjectId,
+            type:mongoose.Schema.Types.ObjectId,
             ref:"Video"
         }
     ],
@@ -60,7 +60,7 @@ userSchema.pre("save",async function (next){
 
 // check if password field is modified or not
 if(this.isModified("password")){// isModified is provided by thik hook only
-    this.password= bcrypt.hash(this.password,10)//10 is number of rounds // shyd yha await lgana chahiye 
+    this.password= await bcrypt.hash(this.password,10)//10 is number of rounds 
 }
 next(); 
 })
