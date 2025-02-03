@@ -83,7 +83,7 @@ userSchema.methods.generateAccessToken= function(){
         email:this.email,
         username:this.username,
         fullName:this.fullname
-    },process.env.ACCESS_TOKEN,{
+    },process.env.ACCESS_TOKEN_SECRET,{
         expiresIn:process.env.ACCESS_TOKEN_EXPIRY
     })
 
@@ -99,3 +99,4 @@ userSchema.methods.generateRefreshToken= function(){
 }    
 
 export const User=mongoose.model('User',userSchema);    
+// export default User;
