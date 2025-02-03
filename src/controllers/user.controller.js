@@ -27,22 +27,29 @@ const registerUser=asyncHandler(async (req,res)=>{
 
     // we will check if username or email exist or not
     // to find one we can simply check User.findOne({username})
-    const existedUser=User.findOne({
+    const existedUser=await User.findOne({
         $or: [{username}, {email}]
     })
-    if(existedUse) throw new ApiError(409,"User with username or email already exist");
+    if(existedUser) throw new ApiError(409,"User with username or email already exist");
 
     //kyuki multer use kiye hai middleware me to req.body ki trh sara file req.files me hoga 
 
     const avatarLocalPath=req.files?.avatar[0]?.path//ye yha se hmko file path mil jaega kyuki hm aise hi save kiye hai later cloudinary me help krega save krne me 
     //try to console.log(req.files)
-    const coverImageLocalPath=req.files?.coverImage[0]?.path
+    // const coverImageLocalPath=req.files?.coverImage[0]?.path
+    // since coverImage is not mandatory there may be chances of undefined there fore
+
+    let coverImageLocalPath;
+    if(req.files && Array.isArray(req.files.coverImage) && req.files.coverImage.length>0){
+        coverImageLocalPath=req.files.coverImage[0].path;
+    }
 
     if(!avatarLocalPath) throw new ApiError(400,"Avatar file is required");
 
     // now upload to cloudinary
     const avatar=await uploadOnCloudinary(avatarLocalPath);
     const coverImage=await uploadOnCloudinary(coverImageLocalPath);
+    
 
     if(!avatar) throw new ApiError(400,"Avatar file is required");
 
