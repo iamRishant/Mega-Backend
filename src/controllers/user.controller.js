@@ -3,6 +3,7 @@ import {ApiError} from '../utils/ApiError.js'
 import {User} from '../models/user.model.js'
 import {uploadOnCloudinary} from '../utils/cloudinary.js'
 import {ApiResponse} from "../utils/ApiResponse.js"
+import jwt from "jsonwebtoken"
 
 
 
@@ -179,4 +180,38 @@ const logOutUser=asyncHandler(async(req,res)=>{
     
 })
 
-export {registerUser,logInUser,logOutUser};
+const refreshAccessToken=asyncHandler(async(req,res)=>{
+    //this is for refreshing token
+    const incomingRefreshToken=req.cookies.refreshToken || req.body.refreshToken;
+    if(!incomingRefreshToken) throw new Error(401,"unauthorized request ");
+
+    // now we need to verify incoming token 
+   try {
+     const decodedToken=await jwt.verify(incomingRefreshToken,process.env.REFRESH_TOKEN_SECRET)
+     const user=User.findById(decodedToken?._id);
+ 
+     if(!user) throw new Error(401,"Invalid refresh token")
+ 
+         // now we have to match incoming token and token present in the database
+         if(incomingRefreshToken!==user?.refreshToken){
+             throw new Error(401,"Refresh token in invalid or used");
+         }
+         // agar match kar gyaa then generate new access token and return the user
+         const options={
+             https:true,
+             secure:true
+         }
+         const {accessToken,newRefreshToken}=await generateAccessAndRefreshToken(user._id); 
+ 
+         return res.status(200).cookie("accessToken",accessToken).cookie("refreshToken",newRefreshToken).json(new ApiResponse(200,
+             {
+                 accessToken,refreshToken:newRefreshToken
+             },"Access Token Refreshed"));
+   } catch (error) {
+    throw new Error(401,error?.message || "Invalid refresh token");
+    
+   }
+    
+})
+
+export {registerUser,logInUser,logOutUser,refreshAccessToken};
